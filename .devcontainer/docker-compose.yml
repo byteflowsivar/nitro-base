@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  nitro:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+
+    # Mantener el contenedor corriendo
+    tty: true
+
+    # Configuración de red - expone los puertos para desarrollo
+    ports:
+      - "3000:3000"  # Para aplicaciones Express/Node.js
+      - "8080:8080"  # Para Next.js
+      - "9229:9229"  # Para Node.js debugger
+
+    # Monta volúmenes para persistencia de datos
+    volumes:
+      # Monta el código fuente en /app
+      - ..:/home/devuser/nitro-base
+      # Monta las llaves SSH para acceso a Git
+      - ~/.ssh:/home/devuser/.ssh:ro
+      # Monta la configuración de Git
+      - ~/.gitconfig:/home/devuser/.gitconfig:ro
+
+    # Variables de entorno
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+
+    # Configuración adicional para el usuario
+    user: devuser
+
+    # Opcional: configuración de seguridad mejorada
+    security_opt:
+      - no-new-privileges:true
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: nitro
+      POSTGRES_PASSWORD: nitro
+      POSTGRES_DB: nitro_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+    driver: local
+  redis:
+    driver: local

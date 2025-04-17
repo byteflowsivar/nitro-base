@@ -1,0 +1,32 @@
+{
+  "name": "Nitro Development Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "nitro",
+  "workspaceFolder": "/home/devuser/nitro-base",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "remoteUser": "devuser",
+  "updateRemoteUserUID": true,
+  "features": {
+    "git": "latest",
+    "github-cli": "latest"
+  },
+  "remoteEnv": {
+    "NODE_ENV": "development"
+  },
+  "postCreateCommand": "npm install",
+  "forwardPorts": [
+    3000,
+    8080,
+    9229
+  ]
+}
