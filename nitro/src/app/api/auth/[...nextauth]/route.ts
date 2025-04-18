@@ -4,6 +4,7 @@ import NextAuth, { AuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
 import { JWT } from "next-auth/jwt";
+import { randomUUID } from "crypto";
 
 // Inicializar Prisma Client
 const prisma = new PrismaClient();
@@ -86,11 +87,54 @@ export const authOptions: AuthOptions = {
     // Configuración de JWT
     callbacks: {
         // Extender el token con información adicional del usuario
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.id = user.id;
                 token.roles = (user as any).roles || [];
                 token.permissions = (user as any).permissions || [];
+
+                // Generar un sessionToken único para este inicio de sesión
+                token.sessionToken = randomUUID();
+
+                // Calcular la fecha de expiración
+                const expiryDate = new Date();
+                expiryDate.setTime(expiryDate.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 días
+
+                // Verificar si ya existe una sesión para este usuario
+                const existingSession = await prisma.session.findFirst({
+                    where: {
+                        userId: user.id,
+                        expires: {
+                            gte: new Date(), // Asegurarse de que la sesión no haya expirado
+                        },
+                    },
+                });
+
+                // Registrar una nueva sesión solo si no existe una activa
+                if (!existingSession) {
+                    await prisma.session.create({
+                        data: {
+                            sessionToken: token.sessionToken,
+                            userId: user.id,
+                            expires: expiryDate,
+                        },
+                    });
+                } else {
+                    // Reutilizar el sessionToken existente
+                    token.sessionToken = existingSession.sessionToken;
+                }
+            }
+
+            // Si es una actualización de sesión (como en un cierre de sesión)
+            if (trigger === 'update' && session?.terminateSession) {
+                // Eliminar la sesión de la base de datos
+                if (token.sessionToken) {
+                    await prisma.session.deleteMany({
+                        where: {
+                            sessionToken: token.sessionToken as string
+                        }
+                    });
+                }
             }
             return token;
         },
@@ -103,6 +147,20 @@ export const authOptions: AuthOptions = {
             }
             return session;
         },
+    },
+    // Evento para manejar el cierre de sesión
+    events: {
+        signOut: async ({ token }) => {
+
+            // Eliminar la sesión cuando el usuario cierra sesión
+            if (token?.sessionToken) {
+                await prisma.session.deleteMany({
+                    where: {
+                        sessionToken: token.sessionToken as string
+                    }
+                });
+            }
+        }
     },
     // Habilitar depuración en desarrollo
     debug: process.env.NODE_ENV === "development",
