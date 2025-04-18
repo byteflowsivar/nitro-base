@@ -6,6 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { loginSchema, type LoginFormValues } from '@/lib/validations/auth';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from "@/components/ui/input"
+
 
 export default function LoginPage() {
     const router = useRouter();
@@ -42,7 +47,6 @@ export default function LoginPage() {
                 return;
             }
 
-            // Redireccionar al dashboard o a la URL de callback
             router.push(callbackUrl);
             router.refresh();
         } catch (error) {
@@ -53,35 +57,49 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 dark:bg-gray-900">
-            <div className="w-full max-w-md space-y-8">
-                <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-bold tracking-tight">
-                        Iniciar sesión
-                    </h2>
-                    <p className="mt-2 text-sm">
-                        Accede a tu cuenta para continuar
-                    </p>
+        <div className="flex min-h-screen flex-col md:flex-row">
+            {/* Panel izquierdo - Testimonial */}
+            <div className="relative hidden w-full bg-gray-800 md:flex md:w-1/2 md:flex-col md:items-start md:justify-between p-8">
+                <div className="flex items-center">
+                    <div className="mr-2">
+                        <Image src="/window.svg" alt="Logo" width={24} height={24} />
+                    </div>
+                    <h2 className="text-xl font-bold text-white">Nitro.</h2>
                 </div>
 
-                {error && (
-                    <div className="rounded-md bg-red-50 p-4 text-sm text-red-500 dark:bg-red-900/30 dark:text-red-200">
-                        {error}
+                <div className="my-auto max-w-md">
+                    <blockquote className="text-xl font-medium text-white">
+                        &ldquo;This library has saved me countless hours of work and helped me deliver stunning designs to my clients faster than ever before.&rdquo;
+                    </blockquote>
+                    <div className="mt-6 text-base text-gray-400">
+                        Sofia Davis
                     </div>
-                )}
+                </div>
+            </div>
 
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="space-y-4 rounded-md shadow-sm">
+            {/* Panel derecho - Formulario */}
+            <div className="flex w-full items-center justify-center px-4 py-12 sm:px-6 md:w-1/2 md:px-20 lg:px-32">
+                <div className="w-full max-w-sm space-y-8">
+                    <div className="space-y-2 text-center">
+                        <h1 className="text-3xl font-semibold tracking-tight">Autenticación</h1>
+                        <p className="text-sm text-gray-500">
+                            Ingrese su email y password.
+                        </p>
+                    </div>
+
+                    {error && (
+                        <div className="rounded-md bg-red-50 p-3 text-sm text-red-500">
+                            {error}
+                        </div>
+                    )}
+
+                    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium pb-1">
-                                Email
-                            </label>
-                            <input
+                            <Input
                                 id="email"
                                 type="email"
                                 autoComplete="email"
-                                className="relative block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                                placeholder="nombre@ejemplo.com"
+                                placeholder="correo@example.com"
                                 disabled={isLoading}
                                 {...register('email')}
                             />
@@ -89,15 +107,12 @@ export default function LoginPage() {
                                 <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
                             )}
                         </div>
+
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium pb-1">
-                                Contraseña
-                            </label>
-                            <input
+                            <Input
                                 id="password"
                                 type="password"
                                 autoComplete="current-password"
-                                className="relative block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                                 placeholder="********"
                                 disabled={isLoading}
                                 {...register('password')}
@@ -106,18 +121,28 @@ export default function LoginPage() {
                                 <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
                             )}
                         </div>
-                    </div>
 
-                    <div>
-                        <button
+                        <Button
                             type="submit"
                             disabled={isLoading}
-                            className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-300 dark:disabled:bg-blue-800"
+                            className="w-full rounded-md bg-gray-800 py-2 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                        </button>
-                    </div>
-                </form>
+                            {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
+                        </Button>
+                    </form>
+
+                    <p className="text-center text-sm text-gray-500">
+                        Al ingresar usted acepta nuestros{' '}
+                        <Link href="#" className="underline underline-offset-2 hover:text-gray-900">
+                            Terminos de Servicio
+                        </Link>{' '}
+                        y{' '}
+                        <Link href="#" className="underline underline-offset-2 hover:text-gray-900">
+                            Politicas de Privacidad
+                        </Link>
+                        .
+                    </p>
+                </div>
             </div>
         </div>
     );
