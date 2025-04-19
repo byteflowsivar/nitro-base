@@ -12,7 +12,7 @@ export default withAuth(
         // Verificar acceso a rutas del panel (dashboard)
         if (pathname.startsWith('/dashboard')) {
             // Si el usuario no tiene rol de 'admin' o 'user' redirigir a página de acceso denegado
-            const hasAccess = session?.roles?.some(role => ['admin', 'user'].includes(role));
+            const hasAccess = session?.roles?.some((role: string) => ['admin', 'user'].includes(role));
 
             if (!hasAccess) {
                 return NextResponse.redirect(new URL('/auth/access-denied', req.url));

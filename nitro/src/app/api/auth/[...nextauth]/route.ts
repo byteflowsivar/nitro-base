@@ -76,7 +76,7 @@ export const authOptions: AuthOptions = {
     pages: {
         signIn: "/auth/login",
         error: "/auth/error",
-        // signOut: '/auth/signout',
+        signOut: '/auth/signout',
         // newUser: '/auth/register' // Nueva página de registro si quieres personalizar
     },
     // Configurar sesión y JWT
