@@ -1,16 +1,14 @@
+/**
+ * Sidebar principal de la aplicación que muestra la navegación,
+ * selector de equipo y perfil de usuario.
+ * 
+ * @component
+ * @param {React.ComponentProps<typeof Sidebar>} props - Props del componente Sidebar
+ * @returns {JSX.Element} - Componente de sidebar renderizado
+ */
 "use client"
 
 import * as React from "react"
-import {
-    AudioWaveform,
-    BookOpen,
-    Bot,
-    Command,
-    GalleryVerticalEnd,
-    Map,
-    Settings2,
-    SquareTerminal,
-} from "lucide-react"
 
 import { NavMain } from "@/components/ui/nav-main"
 import { NavUser } from "@/components/ui/nav-user"
@@ -23,151 +21,47 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar"
 import { useSession } from "next-auth/react"
-
-// This is sample data.
-const data = {
-    user: {
-        name: "Usuario Administrador",
-        email: "admin@ejemplo.com",
-        avatar: "/avatars/shadcn.jpg",
-    },
-    teams: [
-        {
-            name: "Nitro Labs",
-            logo: GalleryVerticalEnd,
-            plan: "Enterprise",
-        },
-        {
-            name: "Acme Corp.",
-            logo: AudioWaveform,
-            plan: "Startup",
-        },
-        {
-            name: "Evil Corp.",
-            logo: Command,
-            plan: "Free",
-        },
-    ],
-    navMain: [
-        {
-            title: "Dashboard",
-            url: "/dashboard",
-            icon: Map,
-            items: [],
-        },
-        {
-            title: "Administración",
-            url: "#",
-            icon: SquareTerminal,
-            items: [
-                {
-                    title: "Dashboard",
-                    url: "/dashboard/admin",
-                },
-                {
-                    title: "Usuarios",
-                    url: "#",
-                },
-                {
-                    title: "Roles",
-                    url: "#",
-                },
-                {
-                    title: "Configuraciones",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Models",
-            url: "#",
-            icon: Bot,
-            items: [
-                {
-                    title: "Genesis",
-                    url: "#",
-                },
-                {
-                    title: "Explorer",
-                    url: "#",
-                },
-                {
-                    title: "Quantum",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Documentation",
-            url: "#",
-            icon: BookOpen,
-            items: [
-                {
-                    title: "Introduction",
-                    url: "#",
-                },
-                {
-                    title: "Get Started",
-                    url: "#",
-                },
-                {
-                    title: "Tutorials",
-                    url: "#",
-                },
-                {
-                    title: "Changelog",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Settings",
-            url: "#",
-            icon: Settings2,
-            items: [
-                {
-                    title: "General",
-                    url: "#",
-                },
-                {
-                    title: "Team",
-                    url: "#",
-                },
-                {
-                    title: "Billing",
-                    url: "#",
-                },
-                {
-                    title: "Limits",
-                    url: "#",
-                },
-            ],
-        },
-    ]
-}
+import { usePermissions } from "@/hooks/use-permissions"
+import { defaultUser, teams, navItems } from "@/lib/data/sidebar-data"
+import { NavItem, User } from "@/types/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-
     const { data: session } = useSession();
+    const { hasPermission } = usePermissions();
+    const [userData, setUserData] = React.useState<User>(defaultUser);
 
-    // Se agregan las opciones administrativas si el usuario es administrador ( solo una vez)
+    // Filtrar elementos de navegación basados en permisos
+    const filteredNavItems = React.useMemo(() => {
+        return navItems.map(item => ({
+            ...item,
+            items: item.items?.filter(subItem =>
+                !subItem.permissionRequired || hasPermission(subItem.permissionRequired)
+            )
+        })).filter(item => item.items?.length || !item.items);
+    }, [hasPermission]);
+
+    // Actualizar datos del usuario cuando la sesión cambia
     React.useEffect(() => {
-        data.user.name = session?.user?.name || "Test Administrador";
-        data.user.email = session?.user?.email || "";
-        data.user.avatar = session?.user?.image || "/avatars/shadcn.jpg";
+        if (session?.user) {
+            setUserData({
+                name: session.user.name || defaultUser.name,
+                email: session.user.email || defaultUser.email,
+                avatar: session.user.image || defaultUser.avatar,
+                role: session.user.role
+            });
+        }
     }, [session]);
-
 
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <TeamSwitcher teams={data.teams} />
+                <TeamSwitcher teams={teams} />
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain items={filteredNavItems} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser user={userData} />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
