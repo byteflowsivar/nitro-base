@@ -42,6 +42,30 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+/**
+ * Componente de navegación para el usuario actual
+ * 
+ * Muestra información del usuario y opciones en un menú desplegable,
+ * incluyendo la funcionalidad de cierre de sesión con confirmación
+ * mediante un diálogo de alerta.
+ * 
+ * @component
+ * @param {Object} props - Propiedades del componente
+ * @param {Object} props.user - Información del usuario
+ * @param {string} props.user.name - Nombre del usuario
+ * @param {string} props.user.email - Email del usuario
+ * @param {string} props.user.avatar - URL de la imagen de avatar
+ * @returns {JSX.Element} Componente de navegación de usuario
+ * 
+ * @example
+ * const userData = {
+ *   name: "John Doe",
+ *   email: "john@example.com",
+ *   avatar: "/avatars/john.jpg"
+ * };
+ * 
+ * <NavUser user={userData} />
+ */
 export function NavUser({
     user,
 }: {
@@ -54,10 +78,16 @@ export function NavUser({
     const { isMobile } = useSidebar()
     const [showSignOutDialog, setShowSignOutDialog] = useState(false)
 
+    /**
+     * Muestra el diálogo de confirmación para cerrar sesión
+     */
     const handleShowSignOutDialog = () => {
         setShowSignOutDialog(true)
     }
 
+    /**
+     * Ejecuta el cierre de sesión y redirecciona a la página de login
+     */
     const handleSignOut = async () => {
         await signOut({ callbackUrl: "/auth/login" })
     }

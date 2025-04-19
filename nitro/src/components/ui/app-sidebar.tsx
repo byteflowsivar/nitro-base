@@ -2,9 +2,25 @@
  * Sidebar principal de la aplicación que muestra la navegación,
  * selector de equipo y perfil de usuario.
  * 
+ * Este componente integra los diferentes elementos de la barra lateral:
+ * - TeamSwitcher para cambiar entre equipos
+ * - NavMain para la navegación principal con ítems anidados
+ * - NavUser para la información y opciones del usuario actual
+ * 
+ * Además, implementa filtrado basado en permisos para la navegación.
+ * 
  * @component
  * @param {React.ComponentProps<typeof Sidebar>} props - Props del componente Sidebar
  * @returns {JSX.Element} - Componente de sidebar renderizado
+ * 
+ * @example
+ * // Uso en un layout
+ * <SidebarProvider>
+ *   <AppSidebar />
+ *   <SidebarInset>
+ *     {children}
+ *   </SidebarInset>
+ * </SidebarProvider>
  */
 "use client"
 
@@ -30,7 +46,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { hasPermission } = usePermissions();
     const [userData, setUserData] = React.useState<User>(defaultUser);
 
-    // Filtrar elementos de navegación basados en permisos
+    /**
+     * Filtra los elementos de navegación basados en los permisos del usuario
+     * Los elementos con permissionRequired solo se muestran si el usuario tiene ese permiso
+     */
     const filteredNavItems = React.useMemo(() => {
         return navItems.map(item => ({
             ...item,
@@ -40,7 +59,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         })).filter(item => item.items?.length || !item.items);
     }, [hasPermission]);
 
-    // Actualizar datos del usuario cuando la sesión cambia
+    /**
+     * Actualiza los datos del usuario cuando cambia la sesión
+     */
     React.useEffect(() => {
         if (session?.user) {
             setUserData({

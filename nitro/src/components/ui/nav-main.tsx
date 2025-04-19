@@ -18,6 +18,43 @@ import {
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
+/**
+ * Componente de navegación principal para la barra lateral
+ * 
+ * Renderiza una lista de elementos de navegación, con soporte para
+ * elementos anidados utilizando el componente Collapsible.
+ * 
+ * @component
+ * @param {Object} props - Propiedades del componente
+ * @param {Array<{
+ *   title: string,
+ *   url: string,
+ *   icon?: LucideIcon,
+ *   isActive?: boolean,
+ *   items?: Array<{title: string, url: string}>
+ * }>} props.items - Elementos de navegación a mostrar
+ * @returns {JSX.Element} Componente de navegación principal
+ * 
+ * @example
+ * const navItems = [
+ *   { 
+ *     title: "Dashboard", 
+ *     url: "/dashboard", 
+ *     icon: HomeIcon 
+ *   },
+ *   {
+ *     title: "Administración",
+ *     url: "#",
+ *     icon: SettingsIcon,
+ *     items: [
+ *       { title: "Usuarios", url: "/admin/users" },
+ *       { title: "Configuración", url: "/admin/settings" }
+ *     ]
+ *   }
+ * ];
+ * 
+ * <NavMain items={navItems} />
+ */
 export function NavMain({
     items,
 }: {

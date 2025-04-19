@@ -10,7 +10,7 @@ export default function AdminDashboardPage() {
 
     // Verificación adicional en el cliente para roles de administrador
     useEffect(() => {
-        if (session && !session.user.roles.includes('admin')) {
+        if (session && !(session.user.roles?.includes('admin') ?? false)) {
             router.push('/auth/access-denied');
         }
     }, [session, router]);

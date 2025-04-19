@@ -6,11 +6,25 @@ import { compare } from "bcrypt";
 import { JWT } from "next-auth/jwt";
 import { randomUUID } from "crypto";
 
-// Inicializar Prisma Client
+/** 
+ * Inicializar Prisma Client para interactuar con la base de datos
+ * @private
+ */
 const prisma = new PrismaClient();
 
 /**
  * Opciones de configuración para NextAuth
+ * 
+ * Define la configuración completa del sistema de autenticación, incluyendo:
+ * - Adaptador para Prisma (persistencia de sesiones)
+ * - Proveedores de autenticación (Credentials)
+ * - Páginas personalizadas
+ * - Configuración de sesiones y JWT
+ * - Callbacks para extender tokens y sesiones
+ * - Eventos para manejar acciones específicas
+ * 
+ * @type {AuthOptions}
+ * @category Auth
  */
 export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
@@ -22,6 +36,18 @@ export const authOptions: AuthOptions = {
                 email: { label: "Email", type: "email" },
                 password: { label: "Contraseña", type: "password" },
             },
+            /**
+             * Función de autorización que verifica las credenciales del usuario
+             * 
+             * @async
+             * @function authorize
+             * @memberof module:next-auth/providers/credentials
+             * @param {Record<string, string>} credentials - Credenciales proporcionadas por el usuario
+             * @param {string} credentials.email - Email del usuario
+             * @param {string} credentials.password - Contraseña del usuario
+             * @returns {Promise<User>} Objeto de usuario con roles y permisos si las credenciales son válidas
+             * @throws {Error} Si las credenciales son inválidas o incompletas
+             */
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) {
                     throw new Error("Credenciales incompletas");
@@ -86,7 +112,19 @@ export const authOptions: AuthOptions = {
     },
     // Configuración de JWT
     callbacks: {
-        // Extender el token con información adicional del usuario
+        /**
+         * Extiende el token JWT con información adicional del usuario
+         * 
+         * @async
+         * @function jwt
+         * @memberof module:next-auth/callbacks
+         * @param {Object} params - Parámetros para la generación del token
+         * @param {JWT} params.token - Token JWT actual
+         * @param {User} [params.user] - Usuario si está disponible (solo durante login)
+         * @param {string} [params.trigger] - Evento que desencadenó la callback
+         * @param {Object} [params.session] - Sesión actual si está disponible
+         * @returns {Promise<JWT>} Token JWT extendido
+         */
         async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.id = user.id;
@@ -114,7 +152,7 @@ export const authOptions: AuthOptions = {
                 if (!existingSession) {
                     await prisma.session.create({
                         data: {
-                            sessionToken: token.sessionToken,
+                            sessionToken: token.sessionToken as string,
                             userId: user.id,
                             expires: expiryDate,
                         },
@@ -138,7 +176,17 @@ export const authOptions: AuthOptions = {
             }
             return token;
         },
-        // Extender la sesión con información adicional del token
+        /**
+         * Extiende la sesión con información adicional del token JWT
+         * 
+         * @async
+         * @function session
+         * @memberof module:next-auth/callbacks
+         * @param {Object} params - Parámetros para la generación de la sesión
+         * @param {Session} params.session - Sesión actual
+         * @param {JWT} params.token - Token JWT con la información extendida
+         * @returns {Promise<Session>} Sesión extendida con información adicional
+         */
         async session({ session, token }: { session: Session; token: JWT }) {
             if (session.user) {
                 session.user.id = token.id as string;
@@ -150,8 +198,17 @@ export const authOptions: AuthOptions = {
     },
     // Evento para manejar el cierre de sesión
     events: {
+        /**
+         * Manejador de evento para el cierre de sesión
+         * Elimina la sesión de la base de datos cuando el usuario cierra sesión
+         * 
+         * @async
+         * @function signOut
+         * @memberof module:next-auth/events
+         * @param {Object} params - Parámetros del evento
+         * @param {JWT} params.token - Token JWT del usuario que cierra sesión
+         */
         signOut: async ({ token }) => {
-
             // Eliminar la sesión cuando el usuario cierra sesión
             if (token?.sessionToken) {
                 await prisma.session.deleteMany({
@@ -166,8 +223,19 @@ export const authOptions: AuthOptions = {
     debug: process.env.NODE_ENV === "development",
 };
 
-// Manipulador para las solicitudes de autenticación
+/**
+ * Manipulador para las solicitudes de autenticación de NextAuth
+ * 
+ * @const {Object} handler
+ * @category Auth
+ */
 const handler = NextAuth(authOptions);
 
-// Exportar manipuladores GET y POST
+/**
+ * Exportar manipuladores GET y POST para manejar solicitudes HTTP
+ * 
+ * @exports GET - Manipulador para solicitudes GET de autenticación
+ * @exports POST - Manipulador para solicitudes POST de autenticación
+ * @category Auth
+ */
 export { handler as GET, handler as POST };
