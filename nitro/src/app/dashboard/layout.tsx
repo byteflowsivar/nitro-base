@@ -4,6 +4,10 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
+import { Separator } from "@/components/ui/separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export default function DashboardLayout({
     children,
@@ -33,51 +37,34 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="flex min-h-screen flex-col md:flex-row">
-            {/* Barra lateral */}
-            <aside className="w-full border-r bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900 md:w-64">
-                <div className="mb-6 flex items-center">
-                    <h2 className="text-xl font-bold">Nitro Dashboard</h2>
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                    <div className="flex items-center gap-2 px-4">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator orientation="vertical" className="mr-2 h-4" />
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                <BreadcrumbItem className="hidden md:block">
+                                    <BreadcrumbLink href="#">
+                                        Nitro Dashboard
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                <BreadcrumbSeparator className="hidden md:block" />
+                                <BreadcrumbItem>
+                                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                                </BreadcrumbItem>
+                            </BreadcrumbList>
+                        </Breadcrumb>
+                    </div>
+                </header>
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+                    {/* Contenido principal */}
+                    <main className="flex-1 p-6">{children}</main>
                 </div>
 
-                <div className="mb-6">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Bienvenido, {session?.user?.name || session?.user?.email}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Roles: {session?.user?.roles?.join(", ")}
-                    </p>
-                </div>
-
-                <nav className="space-y-1">
-                    <Link
-                        href="/dashboard"
-                        className="flex items-center rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-                    >
-                        Inicio Dashboard
-                    </Link>
-
-                    {/* Mostrar enlaces administrativos solo a usuarios con rol admin */}
-                    {session?.user?.roles?.includes("admin") && (
-                        <Link
-                            href="/dashboard/admin"
-                            className="flex items-center rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-                        >
-                            Panel de Administración
-                        </Link>
-                    )}
-
-                    <Link
-                        href="/api/auth/signout?callbackUrl=/"
-                        className="flex items-center rounded-md px-3 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800"
-                    >
-                        Cerrar sesión
-                    </Link>
-                </nav>
-            </aside>
-
-            {/* Contenido principal */}
-            <main className="flex-1 p-6">{children}</main>
-        </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
