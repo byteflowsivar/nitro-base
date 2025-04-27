@@ -41,6 +41,7 @@ export default function LoginForm() {
 
       if (!result?.ok) {
         setError(result?.error || 'Error en la autenticación');
+        setIsLoading(false);
         return;
       }
 
@@ -49,7 +50,6 @@ export default function LoginForm() {
     } catch (error) {
       setError('Ocurrió un error durante el inicio de sesión');
       console.error('Error during sign-in:', error);
-    } finally {
       setIsLoading(false);
     }
   }
