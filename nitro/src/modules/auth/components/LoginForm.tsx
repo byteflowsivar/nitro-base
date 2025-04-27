@@ -48,6 +48,7 @@ export default function LoginForm() {
             router.refresh();
         } catch (error) {
             setError('Ocurrió un error durante el inicio de sesión');
+            console.error('Error during sign-in:', error);
         } finally {
             setIsLoading(false);
         }

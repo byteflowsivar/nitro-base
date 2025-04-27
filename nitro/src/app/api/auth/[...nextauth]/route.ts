@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
 import { JWT } from "next-auth/jwt";
 import { randomUUID } from "crypto";
+import { AdapterUser } from "next-auth/adapters";
 
 /** 
  * Inicializar Prisma Client para interactuar con la base de datos
@@ -128,8 +129,8 @@ export const authOptions: AuthOptions = {
         async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.id = user.id;
-                token.roles = (user as any).roles || [];
-                token.permissions = (user as any).permissions || [];
+                token.roles = (user as User | AdapterUser).roles || [];
+                token.permissions = (user as User | AdapterUser).permissions || [];
 
                 // Generar un sessionToken único para este inicio de sesión
                 token.sessionToken = randomUUID();

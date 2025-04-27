@@ -12,7 +12,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Link from "next/link";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -24,7 +23,7 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter();
     const { hasPermission } = usePermissions();
 

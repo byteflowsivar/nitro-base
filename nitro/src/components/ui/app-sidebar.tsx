@@ -39,7 +39,7 @@ import {
 import { useSession } from "next-auth/react"
 import { usePermissions } from "@/hooks/use-permissions"
 import { defaultUser, teams, navItems } from "@/lib/data/sidebar-data"
-import { NavItem, User } from "@/types/sidebar"
+import { User } from "@/types/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession();
