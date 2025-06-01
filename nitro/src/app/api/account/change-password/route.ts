@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
-import { authOptions } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { authOptions } from '@/lib/auth/auth-options';
+import { PrismaClient } from '@prisma/client';
 import { hash, compare } from 'bcrypt';
+
+const prisma = new PrismaClient();
 
 // Esquema de validación
 const passwordChangeSchema = z.object({
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest) {
     const { currentPassword, newPassword } = result.data;
     
     // Obtener usuario de la base de datos
-    const user = await db.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
     
@@ -52,7 +54,15 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
-    
+
+    // Verificar si la contraseña está definida
+    if (!user.password) {
+      return NextResponse.json(
+        { error: 'Contraseña no establecida para el usuario' },
+        { status: 400 }
+      );
+    }
+
     // Verificar contraseña actual
     const passwordMatch = await compare(currentPassword, user.password);
     
@@ -66,7 +76,7 @@ export async function POST(req: NextRequest) {
     // Actualizar contraseña
     const hashedPassword = await hash(newPassword, 10);
     
-    await db.user.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: { password: hashedPassword },
     });

@@ -77,25 +77,37 @@ export function ChangePasswordForm() {
     },
   ];
 
-  async function onSubmit(data: PasswordFormValues) {
+  async function onChangePasswordEvent(data: PasswordFormValues) {
     setIsSubmitting(true);
 
     try {
-      // Aquí iría la llamada a la API para cambiar la contraseña
-      // Por ejemplo: await changePassword(data);
+      // Llamada al endpoint de cambio de contraseña
+      const response = await fetch('/api/account/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        }),
+      });
 
-      // Simulamos una petición
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await response.json();
 
-      toast('Contraseña actualizada', {
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al cambiar la contraseña');
+      }
+
+      toast.success('Contraseña actualizada', {
         description: 'Tu contraseña ha sido cambiada correctamente.',
       });
 
       form.reset();
     } catch (error) {
       console.error(error);
-      toast('Error', {
-        description: 'No se pudo actualizar la contraseña. Inténtalo de nuevo.',
+      toast.error('Error', {
+        description: error instanceof Error ? error.message : 'No se pudo actualizar la contraseña. Inténtalo de nuevo.',
       });
     } finally {
       setIsSubmitting(false);
@@ -110,7 +122,7 @@ export function ChangePasswordForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form id="password-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form id="password-form" onSubmit={form.handleSubmit(onChangePasswordEvent)} className="space-y-6">
             <FormField
               control={form.control}
               name="currentPassword"

@@ -30,6 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import Link from 'next/link';
 
 /**
  * Componente de navegación para el usuario actual
@@ -131,7 +132,7 @@ export function NavUser({
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <BadgeCheck />
-                  Account
+                  <Link href={'/account'} className="flex items-center gap-2" >Mi Perfil</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <CreditCard />
