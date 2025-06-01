@@ -24,7 +24,7 @@ export default function LoginPage() {
       </div>
 
       {/* Panel derecho - Formulario */}
-      <div className="flex w-full items-center justify-center px-4 py-12 sm:px-6 md:w-1/2 md:px-20 lg:px-32">
+      <div className="flex w-full items-center justify-center px-4 py-12 sm:px-6 md:w-1/2 md:px-20 lg:px-32 min-h-screen">
         <div className="w-full max-w-sm space-y-8">
           <LoginForm />
 
