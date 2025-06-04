@@ -49,26 +49,34 @@ export const authOptions: AuthOptions = {
        * @returns {Promise<User>} Objeto de usuario con roles y permisos si las credenciales son válidas
        * @throws {Error} Si las credenciales son inválidas o incompletas
        */
-      async authorize(credentials) {
+      async authorize(
+        credentials: Record<'email' | 'password', string> | undefined
+      ): Promise<User> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Credenciales incompletas');
         }
 
-        // Buscar el usuario por email
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          include: {
-            roles: {
-              include: {
-                role: {
-                  include: {
-                    permissions: true,
+        let user;
+        try {
+          user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+            include: {
+              roles: {
+                include: {
+                  role: {
+                    include: {
+                      permissions: true,
+                    },
                   },
                 },
               },
             },
-          },
-        });
+          });
+        } catch (prismaError) {
+          // Capturar específicamente errores de Prisma
+          console.error('Error de conexión a la base de datos:', prismaError);
+          throw new Error('Error de conexión a la base de datos. Intente de nuevo más tarde.');
+        }
 
         // Verificar si el usuario existe y la contraseña es correcta
         if (!user || !user.password) {
