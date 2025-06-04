@@ -7,7 +7,6 @@ import { AdapterUser } from 'next-auth/adapters';
 import { randomUUID } from 'crypto';
 import { JWT } from 'next-auth/jwt';
 
-
 /**
  * Inicializar Prisma Client para interactuar con la base de datos
  * @private

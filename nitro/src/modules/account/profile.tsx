@@ -6,14 +6,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function Profile() {
   const { data: session } = useSession();
-  
+
   if (!session?.user) {
     return <div>No se ha iniciado sesión</div>;
   }
-  
+
   const { name, email, image } = session.user;
-  const initials = name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
-  
+  const initials = name
+    ? name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+    : 'U';
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center gap-4">

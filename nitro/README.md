@@ -1,6 +1,5 @@
 # Nitro Base
 
-
 ## Estructura de la Base de Datos
 
 ### Tablas Principales
@@ -29,6 +28,7 @@ La autenticación se maneja a través de NextAuth.js con los siguientes métodos
 2. **Sesiones JWT**: Almacenadas tanto en cookies como en base de datos
 
 El flujo de autenticación incluye:
+
 - Login/registro de usuarios
 - Verificación de email (opcional)
 - Recuperación de contraseña
@@ -43,6 +43,7 @@ El sistema implementa un control de acceso basado en roles (RBAC):
 3. **Middleware de autorización**: Verifica permisos en rutas protegidas
 
 Los permisos se verifican a nivel de:
+
 - API Routes (middleware)
 - Componentes de UI (directivas condicionales)
 - Acciones del lado del servidor
@@ -108,6 +109,7 @@ npx prisma migrate dev --name init
 ```
 
 Este comando:
+
 1. Genera una migración basada en tu esquema
 2. Aplica la migración a tu base de datos
 3. Regenera el cliente Prisma
@@ -119,4 +121,3 @@ Ejecuta el seed:
 ```bash
 npm run seed
 ```
-

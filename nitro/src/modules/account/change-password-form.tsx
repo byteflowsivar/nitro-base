@@ -105,7 +105,8 @@ export function ChangePasswordForm() {
     } catch (error) {
       console.error('Error al procesar la solicitud:', error);
       toast.error('Error de conexión', {
-        description: 'Ocurrió un problema al conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.',
+        description:
+          'Ocurrió un problema al conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.',
       });
     } finally {
       setIsSubmitting(false);
@@ -120,7 +121,11 @@ export function ChangePasswordForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form id="password-form" onSubmit={form.handleSubmit(onChangePasswordEvent)} className="space-y-6">
+          <form
+            id="password-form"
+            onSubmit={form.handleSubmit(onChangePasswordEvent)}
+            className="space-y-6"
+          >
             <FormField
               control={form.control}
               name="currentPassword"

@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
 import { authOptions } from '@/lib/auth/auth-options';
 
-
 /**
  * Manipulador para las solicitudes de autenticación de NextAuth
  *
