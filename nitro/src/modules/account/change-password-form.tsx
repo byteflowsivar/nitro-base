@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Esquema de validación para el formulario de cambio de contraseña
 const passwordSchema = z
   .object({
     currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
@@ -81,7 +79,6 @@ export function ChangePasswordForm() {
     setIsSubmitting(true);
 
     try {
-      // Llamada al endpoint de cambio de contraseña
       const response = await fetch('/api/account/change-password', {
         method: 'POST',
         headers: {
@@ -95,19 +92,20 @@ export function ChangePasswordForm() {
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Error al cambiar la contraseña');
+      if (response.ok) {
+        toast.success('Contraseña actualizada', {
+          description: 'Tu contraseña ha sido cambiada correctamente.',
+        });
+        form.reset();
+      } else {
+        toast.error('Error', {
+          description: result.error || 'No se pudo actualizar la contraseña. Inténtalo de nuevo.',
+        });
       }
-
-      toast.success('Contraseña actualizada', {
-        description: 'Tu contraseña ha sido cambiada correctamente.',
-      });
-
-      form.reset();
     } catch (error) {
-      console.error(error);
-      toast.error('Error', {
-        description: error instanceof Error ? error.message : 'No se pudo actualizar la contraseña. Inténtalo de nuevo.',
+      console.error('Error al procesar la solicitud:', error);
+      toast.error('Error de conexión', {
+        description: 'Ocurrió un problema al conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.',
       });
     } finally {
       setIsSubmitting(false);
@@ -176,25 +174,24 @@ export function ChangePasswordForm() {
                       {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
-                  <FormDescription>
-                    <ul className="mt-2 space-y-1">
-                      {passwordCriteria.map((criterion) => (
-                        <li key={criterion.id} className="flex items-center text-xs">
-                          {criterion.valid ? (
-                            <Check className="mr-1 h-3 w-3 text-green-500" />
-                          ) : (
-                            <X className="mr-1 h-3 w-3 text-red-500" />
-                          )}
-                          <span
-                            className={criterion.valid ? 'text-green-700' : 'text-muted-foreground'}
-                          >
-                            {criterion.label}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </FormDescription>
                   <FormMessage />
+                  {/* Movido fuera de FormDescription para evitar el error de hidratación */}
+                  <ul className="mt-2 space-y-1">
+                    {passwordCriteria.map((criterion) => (
+                      <li key={criterion.id} className="flex items-center text-xs">
+                        {criterion.valid ? (
+                          <Check className="mr-1 h-3 w-3 text-green-500" />
+                        ) : (
+                          <X className="mr-1 h-3 w-3 text-red-500" />
+                        )}
+                        <span
+                          className={criterion.valid ? 'text-green-700' : 'text-muted-foreground'}
+                        >
+                          {criterion.label}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </FormItem>
               )}
             />
