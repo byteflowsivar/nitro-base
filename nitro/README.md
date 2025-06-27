@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nitro Base
 
-## Getting Started
+## Estructura de la Base de Datos
 
-First, run the development server:
+### Tablas Principales
+
+El sistema utiliza Prisma ORM para gestionar la base de datos con las siguientes tablas principales:
+
+- **User**: Almacena información de usuarios del sistema
+- **Role**: Define roles disponibles (Admin, User, etc.)
+- **Permission**: Permisos individuales del sistema
+- **RolePermission**: Relación muchos a muchos entre roles y permisos
+- **UserRole**: Asigna roles a usuarios específicos
+- **Session**: Gestiona sesiones de usuario activas
+- **PasswordReset**: Almacena tokens para restablecimiento de contraseñas
+
+### Relaciones
+
+- Un usuario puede tener múltiples roles
+- Cada rol contiene múltiples permisos
+- Las sesiones están vinculadas a un usuario específico
+
+## Sistema de Autenticación
+
+La autenticación se maneja a través de NextAuth.js con los siguientes métodos:
+
+1. **Autenticación basada en credenciales**: Email/contraseña
+2. **Sesiones JWT**: Almacenadas tanto en cookies como en base de datos
+
+El flujo de autenticación incluye:
+
+- Login/registro de usuarios
+- Verificación de email (opcional)
+- Recuperación de contraseña
+- Bloqueo de cuentas después de intentos fallidos
+
+## Gestión de Permisos
+
+El sistema implementa un control de acceso basado en roles (RBAC):
+
+1. **Roles**: Agrupaciones de permisos (ej. Admin, Editor, Viewer)
+2. **Permisos**: Acciones específicas permitidas (ej. create:user, update:profile)
+3. **Middleware de autorización**: Verifica permisos en rutas protegidas
+
+Los permisos se verifican a nivel de:
+
+- API Routes (middleware)
+- Componentes de UI (directivas condicionales)
+- Acciones del lado del servidor
+
+## Configuración de Prisma
+
+### Instalación y Configuración
+
+1. Instala las dependencias necesarias:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install prisma @prisma/client
+npm install -D prisma
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Inicializa Prisma en tu proyecto:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx prisma init
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Configura la conexión a la base de datos en el archivo `.env`:
 
-## Learn More
+```
+DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/nombre_db"
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Estructura de Esquemas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+El archivo `prisma/schema.prisma` contiene la definición de todas las tablas y relaciones:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```prisma
+// Ejemplo simplificado del esquema
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  password       String
+  userRoles      UserRole[]
+  sessions       Session[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
 
-## Deploy on Vercel
+model Role {
+  id             String    @id @default(cuid())
+  name           String    @unique
+  userRoles      UserRole[]
+  rolePermissions RolePermission[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+// Otras definiciones de modelos...
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Generación de Tablas
+
+Para crear las tablas en la base de datos:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+Este comando:
+
+1. Genera una migración basada en tu esquema
+2. Aplica la migración a tu base de datos
+3. Regenera el cliente Prisma
+
+### Carga de Datos Iniciales (Seed)
+
+Ejecuta el seed:
+
+```bash
+npm run seed
+```
